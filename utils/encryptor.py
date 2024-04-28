@@ -1,4 +1,5 @@
 import base64
+import hashlib
 
 from cryptography.fernet import Fernet
 
@@ -18,3 +19,9 @@ class TextEncryptor:
         ciphertext_bytes = ciphertext.encode('utf-8')
         decrypted_bytes = self.cipher_suite.decrypt(ciphertext_bytes)
         return decrypted_bytes.decode('utf-8')
+
+
+def get_text_hash(text: str) -> str:
+    hash = hashlib.sha256()
+    hash.update(text.encode())
+    return hash.hexdigest()

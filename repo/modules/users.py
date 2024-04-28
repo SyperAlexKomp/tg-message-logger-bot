@@ -13,6 +13,7 @@ class UserData(Base):
     id = Column(Integer, primary_key=True)
     connection_id = Column(String(1028), unique=True)
     channel_id = Column(BigInteger)
+    language = Column(String(4))
 
 
 class UsersRepo(BaseRepo):
@@ -20,6 +21,9 @@ class UsersRepo(BaseRepo):
         super().__init__(s)
 
     def add(self, user: UserData) -> bool:
+        s = self.get(user.id)
+        if s is not None:
+            return False
 
         try:
             self._s.add(user)
@@ -38,4 +42,8 @@ class UsersRepo(BaseRepo):
     def update_connection_id(self, user: UserData, connection_id: str) -> bool:
         user.connection_id = connection_id
 
+        self._s.commit()
+
+    def delete(self, user: UserData) -> bool:
+        self._s.delete(user)
         self._s.commit()

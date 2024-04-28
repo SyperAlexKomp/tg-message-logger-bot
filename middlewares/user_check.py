@@ -4,6 +4,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, User, BusinessMessagesDeleted, BusinessConnection
 
 from repo import Repo
+from utils.encryptor import get_text_hash
 
 
 class UsersMiddleware(BaseMiddleware):
@@ -20,8 +21,10 @@ class UsersMiddleware(BaseMiddleware):
         if user is None or user_data is None or data.get('business_connection_id') is None:
             return await handler(event, data)
 
-        if user_data.connection_id != data['business_connection_id']:
-            user_data.connection_id = data['business_connection_id']
+        connection_id = get_text_hash(data['business_connection_id'])
+        if user_data.connection_id != connection_id:
+            print("e")
+            user_data.connection_id = connection_id
             repo.save()
 
         return await handler(event, data)
