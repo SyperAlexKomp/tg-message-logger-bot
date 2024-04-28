@@ -10,7 +10,7 @@ from repo.modules.base import Base, BaseRepo
 class UserData(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     connection_id = Column(String(1028), unique=True)
     channel_id = Column(BigInteger)
     language = Column(String(4))
