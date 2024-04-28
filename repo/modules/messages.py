@@ -1,7 +1,7 @@
 import logging
 import typing
 
-from sqlalchemy import Column, Integer, String, BigInteger
+from sqlalchemy import Column, Integer, String, BigInteger, Boolean, BLOB, Text
 from sqlalchemy.orm import sessionmaker
 
 from repo.modules.base import Base, BaseRepo
@@ -11,9 +11,18 @@ class MessageData(Base):
     __tablename__ = 'messages'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+
     connection_id = Column(String(4112))
     message_id = Column(BigInteger)
-    message = Column(String(4112))
+    message = Column(Text, default=None)
+
+    is_sticker = Column(Boolean, default=False)
+    is_media = Column(Boolean, default=False)
+
+    sticker = Column(Text, default=None)
+
+    media = Column(Text, default=None)
+    media_type = Column(Text, default=None)
 
 
 class MessagesRepo(BaseRepo):

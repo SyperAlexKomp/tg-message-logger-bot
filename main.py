@@ -3,7 +3,7 @@ import logging
 from configparser import ConfigParser
 
 from aiogram import Bot, Dispatcher, F
-from aiogram.enums import ParseMode
+from aiogram.enums import ParseMode, ContentType
 from aiogram.types import BusinessConnection, BusinessMessagesDeleted, Message
 from aiogram.utils.i18n import gettext as _, I18n, SimpleI18nMiddleware
 
@@ -81,20 +81,19 @@ async def delete_handler(bdm: BusinessMessagesDeleted, bot: Bot) -> None:
             return
 
         repo.messages.delete(message)
-        text = _("<b>🗑 Deletion noticed!</b>"
-                 "\n\nMessage by <b><a href='https://t.me/{username}'>{name}</a></b>:"
-                 "<blockquote>{msg}</blockquote>",
-                 locale=user.language).format(username=bdm.chat.username,
-                                                          name=bdm.chat.full_name,
-                                                          msg=TextEncryptor(key=bdm.business_connection_id).decrypt(message.message))
 
-        if user.channel_id is not None:
-            try:
-                await bot.send_message(chat_id=user.channel_id, text=text)
-            except:
-                await bot.send_message(chat_id=user.id, text=text)
-        else:
-            await bot.send_message(chat_id=user.id, text=text)
+
+        text = _("<b>🗑 Deletion noticed!</b>"
+                 "\n\nMessage by <b><a href='https://t.me/{username}'>{name}</a></b>:",
+                 locale=user.language).format(username=bdm.chat.username,
+                                                          name=bdm.chat.full_name)
+        if not message.is_sticker:
+            text += "<blockquote>{msg}</blockquote>".format(msg=TextEncryptor(key=bdm.business_connection_id).decrypt(message.message))
+
+        await bot.send_message(chat_id=user.id, text=text)
+        if message.is_sticker:
+            await bot.send_sticker(chat_id=user.id,
+                                   sticker=TextEncryptor(key=bdm.business_connection_id).decrypt(message.sticker))
 
 
 @dp.edited_business_message()
@@ -138,16 +137,27 @@ async def edit_handle(bm: Message, bot: Bot) -> None:
 
 
 
-@dp.business_message(F.content_type.in_({'text'}))
+@dp.business_message()
 async def message_handler(msg: Message) -> None:
     user = repo.users.get_by_connection(get_text_hash(msg.business_connection_id))
 
     if user.id == msg.from_user.id:
         return
 
-    repo.messages.add(message=MessageData(connection_id=get_text_hash(msg.business_connection_id),
-                                          message_id=msg.message_id,
-                                          message=TextEncryptor(key=msg.business_connection_id).encrypt(msg.html_text)))
+    if msg.content_type == ContentType.TEXT:
+        msg_data = MessageData(connection_id=get_text_hash(msg.business_connection_id),
+                               message_id=msg.message_id,
+                               message=TextEncryptor(key=msg.business_connection_id).encrypt(msg.html_text))
+    elif msg.content_type == ContentType.STICKER:
+        msg_data = MessageData(connection_id=get_text_hash(msg.business_connection_id),
+                               message_id=msg.message_id,
+                               is_sticker=True,
+                               sticker=TextEncryptor(key=msg.business_connection_id).encrypt(msg.sticker.file_id))
+    else:
+        return
+
+
+    repo.messages.add(message=msg_data)
 
 
 @dp.message(F.content_type.in_({'text'}))
