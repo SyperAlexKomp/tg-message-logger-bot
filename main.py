@@ -6,6 +6,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.enums import ParseMode, ContentType
 from aiogram.types import BusinessConnection, BusinessMessagesDeleted, Message
 from aiogram.utils.i18n import gettext as _, I18n, SimpleI18nMiddleware
+from aiogram.utils.media_group import MediaGroupBuilder
 
 from middlewares.user_check import UsersMiddleware
 from repo import Repo
@@ -87,13 +88,21 @@ async def delete_handler(bdm: BusinessMessagesDeleted, bot: Bot) -> None:
                  "\n\nMessage by <b><a href='https://t.me/{username}'>{name}</a></b>:",
                  locale=user.language).format(username=bdm.chat.username,
                                                           name=bdm.chat.full_name)
-        if not message.is_sticker:
+        if not message.is_sticker and message.message is not None:
             text += "<blockquote>{msg}</blockquote>".format(msg=TextEncryptor(key=bdm.business_connection_id).decrypt(message.message))
+        elif not message.is_sticker and message.message is None:
+            text.replace(":", "")
 
-        await bot.send_message(chat_id=user.id, text=text)
-        if message.is_sticker:
-            await bot.send_sticker(chat_id=user.id,
-                                   sticker=TextEncryptor(key=bdm.business_connection_id).decrypt(message.sticker))
+        if not message.is_media:
+            await bot.send_message(chat_id=user.id, text=text)
+            if message.is_sticker:
+                await bot.send_sticker(chat_id=user.id,
+                                       sticker=TextEncryptor(key=bdm.business_connection_id).decrypt(message.sticker))
+        else:
+            if message.media_type == ContentType.PHOTO:
+                await bot.send_photo(chat_id=user.id,
+                                     photo=TextEncryptor(key=bdm.business_connection_id).decrypt(message.media),
+                                     caption=text)
 
 
 @dp.edited_business_message()
@@ -113,18 +122,62 @@ async def edit_handle(bm: Message, bot: Bot) -> None:
     if message is None:
         return
 
-    text = _("<b>✏ Editing noticed!</b>"
-             "\n\nOld message by <b><a href='https://t.me/{username}'>{name}</a></b>:"
-             "<blockquote>{old_msg}</blockquote>"
-             "\nNew message:"
-             "<blockquote>{new_msg}</blockquote>",
-                 locale=user.language).format(username=bm.chat.username,
-                                                      name=bm.chat.full_name,
-                                                      new_msg=bm.html_text,
-                                                          old_msg=TextEncryptor(key=bm.business_connection_id).decrypt(
-                                                          message.message))
+    if message.is_media:
+        em = TextEncryptor(key=bm.business_connection_id).encrypt(bm.caption) if bm.caption is not None else None
+        if message.message == em:
+            text = _("<b>✏ Editing noticed!</b>"
+                     "\n\nOld media by <b><a href='https://t.me/{username}'>{name}</a></b> at left"
+                     "\nNew message at right",
+                     locale=user.language).format(username=bm.chat.username,
+                                                  name=bm.chat.full_name)
+        else:
+            text = _("<b>✏ Editing noticed!</b>"
+                     "\n\nOld message by <b><a href='https://t.me/{username}'>{name}</a></b>:"
+                     "<blockquote>{old_msg}</blockquote>"
+                     "\nNew message:"
+                     "<blockquote>{new_msg}</blockquote>",
+                     locale=user.language).format(username=bm.chat.username,
+                                                  name=bm.chat.full_name,
+                                                  new_msg=bm.caption,
+                                                  old_msg=TextEncryptor(key=bm.business_connection_id).decrypt(
+                                                      message.message) if message.message is not None else "")
 
-    message.message = TextEncryptor(key=str(bm.chat.id)).encrypt(bm.html_text)
+            message.message = TextEncryptor(key=bm.business_connection_id).encrypt(bm.caption)
+            repo.save()
+
+
+
+        if bm.content_type == ContentType.PHOTO:
+            media = bm.photo[-1].file_id
+        else:
+            media = bm[bm.content_type].file_id
+
+
+
+        media_group = MediaGroupBuilder(caption=text)
+        media_group.add(type=message.media_type, media=TextEncryptor(key=bm.business_connection_id).decrypt(message.media))
+
+        if media != TextEncryptor(key=bm.business_connection_id).decrypt(message.media):
+            media_group.add(type=bm.content_type, media=media)
+
+        message.media = TextEncryptor(key=bm.business_connection_id).encrypt(media)
+        repo.save()
+
+        await bot.send_media_group(chat_id=user.id, media=media_group.build())
+        return
+    else:
+        text = _("<b>✏ Editing noticed!</b>"
+                 "\n\nOld message by <b><a href='https://t.me/{username}'>{name}</a></b>:"
+                 "<blockquote>{old_msg}</blockquote>"
+                 "\nNew message:"
+                 "<blockquote>{new_msg}</blockquote>",
+                 locale=user.language).format(username=bm.chat.username,
+                                              name=bm.chat.full_name,
+                                              new_msg=bm.html_text,
+                                              old_msg=TextEncryptor(key=bm.business_connection_id).decrypt(
+                                                  message.message))
+
+    message.message = TextEncryptor(key=bm.business_connection_id).encrypt(bm.html_text)
     repo.save()
 
     if user.channel_id is not None:
@@ -138,7 +191,7 @@ async def edit_handle(bm: Message, bot: Bot) -> None:
 
 
 @dp.business_message()
-async def message_handler(msg: Message) -> None:
+async def message_handler(msg: Message, bot: Bot) -> None:
     user = repo.users.get_by_connection(get_text_hash(msg.business_connection_id))
 
     if user.id == msg.from_user.id:
@@ -153,6 +206,14 @@ async def message_handler(msg: Message) -> None:
                                message_id=msg.message_id,
                                is_sticker=True,
                                sticker=TextEncryptor(key=msg.business_connection_id).encrypt(msg.sticker.file_id))
+    elif msg.content_type == ContentType.PHOTO:
+        msg_data = MessageData(connection_id=get_text_hash(msg.business_connection_id),
+                               message_id=msg.message_id,
+                               is_media=True,
+                               media_type=msg.content_type,
+                               media=TextEncryptor(key=msg.business_connection_id).encrypt(msg.photo[-1].file_id),
+                               message=TextEncryptor(key=msg.business_connection_id).encrypt(msg.caption) if msg.caption is not None else None)
+
     else:
         return
 
