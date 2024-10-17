@@ -65,9 +65,10 @@ async def connection_handler(bc: BusinessConnection, bot: Bot) -> None:
                                 language=bc.user.language_code))
 
     if s:
-        text = _("Hello, <b>{name}</b>!"
+        text = _("Hello, <b><a href='tg://user?id={user_id}'>{name}</a></b>!"
                  "\nI will help you to log editing and deleting messages done by another users!"
-                 "\n\n<a href='https://github.com/SyperAlexKomp/tg-message-logger-bot'>Source code</a>").format(name=bc.user.full_name)
+                 "\n\n<a href='https://github.com/SyperAlexKomp/tg-message-logger-bot'>Source code</a>").format(name=bc.user.full_name,
+                                                                                                                id=bc.user.id)
 
         await bot.send_photo(chat_id=bc.user.id,
                              caption=text,
@@ -76,10 +77,11 @@ async def connection_handler(bc: BusinessConnection, bot: Bot) -> None:
 
 @dp.message(ContentTypeFilter((ContentType.TEXT, )))
 async def get_chat_id(msg: Message, bot: Bot) -> None:
-    text = _("Hello, <b>{name}</b>!"
+    text = _("Hello, <b><a href='tg://user?id={user_id}'>{name}</a></b>!"
              "\nI will help you to log editing and deleting messages done by another users!"
              "\n\n<a href='https://github.com/SyperAlexKomp/tg-message-logger-bot'>Source code</a>").format(
-        name=msg.from_user.full_name)
+        name=msg.from_user.full_name,
+        user_id=msg.from_user.id)
 
     await bot.send_photo(chat_id=msg.from_user.id,
                          caption=text,

@@ -30,21 +30,28 @@ async def text_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> Non
 
         repo.messages.delete(message)
 
+        user_link = ""
+        if bdm.chat.has_private_forwards:
+            user_link = f"tg://user?id={bdm.chat.id}"
+        elif bdm.chat.username is not None:
+            user_link = "https://t.me/" + bdm.chat.username
+
         text = _("<b>🗑 Deletion noticed!</b>"
-                 "\n\nMessage by <b><a href='https://t.me/{username}'>{name}</a></b>:"
+                 "\n\nMessage by <b><a href='{user_link}'>{name}</a></b>:"
                  "<blockquote expandable>{msg}</blockquote>",
-                 locale=user.language).format(username=bdm.chat.username,
+                 locale=user.language).format(user_link=user_link,
                                               name=bdm.chat.full_name,
                                               msg=TextEncryptor(key=bdm.business_connection_id).decrypt(message.message))
 
         await bot.send_message(chat_id=user.id, text=text)
 
 
-# Media (Photo, Video, Voice, Animation)
+# Media (Photo, Video, Voice, Animation, Audio)
 @message_delete_route.deleted_business_messages(ContentTypeFilter((ContentType.PHOTO,
                                                                    ContentType.VIDEO,
                                                                    ContentType.VOICE,
-                                                                   ContentType.ANIMATION)))
+                                                                   ContentType.ANIMATION,
+                                                                   ContentType.AUDIO)))
 async def media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> None:
     user = repo.users.get_by_connection(get_text_hash(bdm.business_connection_id))
 
@@ -59,9 +66,15 @@ async def media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> No
 
         repo.messages.delete(message)
 
+        user_link = ""
+        if bdm.chat.has_private_forwards:
+            user_link = f"tg://user?id={bdm.chat.id}"
+        elif bdm.chat.username is not None:
+            user_link = "https://t.me/" + bdm.chat.username
+
         text = _("<b>🗑 Deletion noticed!</b>"
-                 "\n\nMessage by <b><a href='https://t.me/{username}'>{name}</a></b>:",
-                 locale=user.language).format(username=bdm.chat.username,
+                 "\n\nMessage by <b><a href='{user_link}'>{name}</a></b>:",
+                 locale=user.language).format(user_link=user_link,
                                               name=bdm.chat.full_name)
 
         if message.message is None: pass
@@ -95,9 +108,8 @@ async def media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> No
             return
 
 
-# TODO: Video note support
-# No caption media (Stickers, Animations)
-@message_delete_route.deleted_business_messages(ContentTypeFilter((ContentType.STICKER, )))
+# No caption media (Stickers, Video note)
+@message_delete_route.deleted_business_messages(ContentTypeFilter((ContentType.STICKER, ContentType.VIDEO_NOTE)))
 async def nocap_media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> None:
     user = repo.users.get_by_connection(get_text_hash(bdm.business_connection_id))
 
@@ -112,9 +124,15 @@ async def nocap_media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo)
 
         repo.messages.delete(message)
 
+        user_link = ""
+        if bdm.chat.has_private_forwards:
+            user_link = f"tg://user?id={bdm.chat.id}"
+        elif bdm.chat.username is not None:
+            user_link = "https://t.me/" + bdm.chat.username
+
         text = _("<b>🗑 Deletion noticed!</b>"
-                 "\n\nMessage by <b><a href='https://t.me/{username}'>{name}</a></b>",
-                 locale=user.language).format(username=bdm.chat.username,
+                 "\n\nMessage by <b><a href='{user_link}'>{name}</a></b>:",
+                 locale=user.language).format(user_link=user_link,
                                               name=bdm.chat.full_name)
 
         t = await bot.send_message(chat_id=user.id, text=text)
@@ -123,5 +141,14 @@ async def nocap_media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo)
             await bot.send_sticker(chat_id=user.id,
                                    reply_to_message_id=t.message_id,
                                    sticker=TextEncryptor(key=bdm.business_connection_id).decrypt(message.sticker))
+        elif message.media_type == ContentType.VIDEO_NOTE:
+            await bot.send_video_note(chat_id=user.id,
+                                      reply_to_message_id=t.message_id,
+                                      video_note=TextEncryptor(key=bdm.business_connection_id).decrypt(message.media))
         else:
             return
+
+
+@message_delete_route.edited_business_message()
+async def not_handled(msg: BusinessMessagesDeleted):
+    print("Bruh")

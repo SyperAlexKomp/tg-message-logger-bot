@@ -1,0 +1,72 @@
+# Translations template for PROJECT.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-10-17 16:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#: main.py:52
+msgid "⚠ All your data was cleared because of disconnecting"
+msgstr ""
+
+#: main.py:68 main.py:80
+msgid ""
+"Hello, <b><a href='tg://user?id={user_id}'>{name}</a></b>!\n"
+"I will help you to log editing and deleting messages done by another "
+"users!\n"
+"\n"
+"<a href='https://github.com/SyperAlexKomp/tg-message-logger-bot'>Source "
+"code</a>"
+msgstr ""
+
+#: handlers/deleting.py:39
+msgid ""
+"<b>🗑 Deletion noticed!</b>\n"
+"\n"
+"Message by <b><a href='{user_link}'>{name}</a></b>:<blockquote "
+"expandable>{msg}</blockquote>"
+msgstr ""
+
+#: handlers/deleting.py:75 handlers/deleting.py:133
+msgid ""
+"<b>🗑 Deletion noticed!</b>\n"
+"\n"
+"Message by <b><a href='{user_link}'>{name}</a></b>:"
+msgstr ""
+
+#: handlers/deleting.py:102
+msgid "<b>Voice message can't be sent because of your privacy settings!</b>"
+msgstr ""
+
+#: handlers/edit.py:54 handlers/edit.py:90
+msgid ""
+"<b>✏ Editing noticed!</b>\n"
+"\n"
+"Old message by <b><a href='{user_link}'>{name}</a></b>:<blockquote "
+"expandable>{old_msg}</blockquote>\n"
+"New message:<blockquote expandable>{new_msg}</blockquote>"
+msgstr ""
+
+#: handlers/edit.py:141
+msgid ""
+"<b>📍 Location change detected!</b>\n"
+"\n"
+"by <b><a href='{user_link}'>{name}</a></b>\n"
+"\n"
+"P.S. The bot does not store information about the location and sees it "
+"only at the time of update. Therefore, it is impossible to find out what "
+"exactly has changed"
+msgstr ""
+
