@@ -27,12 +27,12 @@ def parse_config_file(config_file: str) -> Dict[str, Dict[str, Any]]:
 
 
 class BotConfig(BaseModel):
-    token: SecretStr
+    token: str
 
 
 class DatabaseConfig(BaseModel):
     username: str
-    password: SecretStr
+    password: str
     ip: str
     port: int
     db: str

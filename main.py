@@ -3,7 +3,7 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode, ContentType
-from aiogram.types import BusinessConnection, Message
+from aiogram.types import BusinessConnection, Message, BotCommand
 from aiogram.utils.i18n import gettext as _, I18n, SimpleI18nMiddleware
 
 from filters.ContentTypeFilter import ContentTypeFilter
@@ -89,9 +89,34 @@ async def get_chat_id(msg: Message, bot: Bot) -> None:
 
 
 async def main() -> None:
-    bot = Bot(token=config.BOT.token,
-              parse_mode=ParseMode.HTML,
-              disable_web_page_preview=True)
+    bot = Bot(
+        token=config.BOT.token,
+        parse_mode=ParseMode.HTML,
+        disable_web_page_preview=True,
+    )
+
+    # English commands translation
+    await bot.set_my_commands(
+        commands=[
+            BotCommand(command="start", description="Short information about bot capabilities"),
+        ],
+        language_code="en"
+    )
+    # Russian commands translation
+    await bot.set_my_commands(
+        commands=[
+            BotCommand(command="start", description="Краткая информация о возможностях бота")
+        ],
+        language_code="ru"
+    )
+    # Ukrainian commands translation
+    await bot.set_my_commands(
+        commands=[
+            BotCommand(command="start", description="Швидка довідка о можливостях бота")
+        ],
+        language_code="uk"
+    )
+
 
     await dp.start_polling(bot)
 
