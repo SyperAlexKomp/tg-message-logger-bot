@@ -25,5 +25,5 @@ storage makes no sense.
 
 ### List of supported UI languages:
 - English
-- Ukrainian (In Progress)
+- Ukrainian
 - Russian
