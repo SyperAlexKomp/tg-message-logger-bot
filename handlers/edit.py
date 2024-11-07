@@ -1,5 +1,4 @@
 import typing
-from typing import Tuple
 
 from aiogram import Router, Bot
 from aiogram.enums import ContentType

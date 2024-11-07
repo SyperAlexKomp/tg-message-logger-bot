@@ -3,6 +3,7 @@ import hashlib
 
 from cryptography.fernet import Fernet
 
+
 class TextEncryptor:
     def __init__(self, key):
         key_bytes = str(key).encode()

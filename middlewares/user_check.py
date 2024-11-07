@@ -1,7 +1,7 @@
 from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject, User, BusinessMessagesDeleted, BusinessConnection
+from aiogram.types import TelegramObject, User
 
 from repo import Repo
 from utils.encryptor import get_text_hash

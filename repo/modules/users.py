@@ -1,8 +1,7 @@
 import logging
 import typing
 
-from sqlalchemy import Column, Integer, String, BigInteger
-from sqlalchemy.orm import Session
+from sqlalchemy import Column, String, BigInteger
 
 from repo.modules.base import Base, BaseRepo
 

@@ -1,11 +1,11 @@
 import abc
-import logging
 import typing
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session
 
 Base = declarative_base()
+
 
 class BaseRepo(abc.ABC):
     def __init__(self, s) -> None:
