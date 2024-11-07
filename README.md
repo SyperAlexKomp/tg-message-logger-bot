@@ -22,3 +22,8 @@ allows you to guarantee complete safety of messages.
 - Unfortunately, due to the fact that the `connection_id` is unique for each connection - when disconnecting the bot from the profile
 all your messages will be deleted from the database because they will never be able to be decrypted in the future, which means further 
 storage makes no sense.
+
+### List of supported UI languages:
+- English
+- Ukrainian (In Progress)
+- Russian
