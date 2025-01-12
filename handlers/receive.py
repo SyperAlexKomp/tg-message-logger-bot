@@ -1,6 +1,7 @@
-from aiogram import Router
+from aiogram import Router, Bot
 from aiogram.enums import ContentType
 from aiogram.types import Message
+from aiogram.utils.i18n import gettext as _
 
 from filters.ContentTypeFilter import ContentTypeFilter
 from repo import Repo
@@ -8,12 +9,23 @@ from repo.modules.messages import MessageData
 from utils.encryptor import get_text_hash, TextEncryptor
 
 message_receive_route = Router()
+bad_users = []  # Used to prevent spam if user is not found in db
 
 
 # Text
 @message_receive_route.business_message(ContentTypeFilter((ContentType.TEXT,)))
-async def text_handle(msg: Message, repo: Repo) -> None:
+async def text_handle(msg: Message, repo: Repo, bot: Bot) -> None:
     user = repo.users.get_by_connection(get_text_hash(msg.business_connection_id))
+
+    if user is None:
+        if get_text_hash(msg.business_connection_id) not in bad_users:
+            bad_users.append(get_text_hash(msg.business_connection_id))
+            bot_info = await bot.me()
+            await msg.answer(
+                _("An error has occurred! Please add the bot to your profile again!\n\n<i>via</i> @{bot_username}").format(
+                    bot_username=bot_info.username))
+        return
+
     if user.id == msg.from_user.id:
         return
 

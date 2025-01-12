@@ -68,7 +68,7 @@ async def connection_handler(bc: BusinessConnection, bot: Bot) -> None:
                  "\nI will help you to log editing and deleting messages done by another users!"
                  "\n\n<a href='https://github.com/SyperAlexKomp/tg-message-logger-bot'>Source code</a>").format(
             name=bc.user.full_name,
-            id=bc.user.id)
+            user_id=bc.user.id)
 
         await bot.send_photo(chat_id=bc.user.id,
                              caption=text,
@@ -116,7 +116,6 @@ async def main() -> None:
         ],
         language_code="uk"
     )
-
 
     await dp.start_polling(bot)
 

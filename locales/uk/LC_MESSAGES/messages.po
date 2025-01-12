@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-10-17 16:00+0200\n"
-"PO-Revision-Date: 2024-11-07 15:42+0100\n"
+"POT-Creation-Date: 2025-01-12 19:15+0100\n"
+"PO-Revision-Date: 2025-01-12 19:17+0100\n"
 "Last-Translator: \n"
 "Language-Team: uk <LL@li.org>\n"
 "Language: uk\n"
@@ -20,11 +20,11 @@ msgstr ""
 "Generated-By: Babel 2.13.1\n"
 "X-Generator: Poedit 3.5\n"
 
-#: main.py:52
+#: main.py:51
 msgid "⚠ All your data was cleared because of disconnecting"
 msgstr "⚠ Всі ваші дані було видалено через відключення"
 
-#: main.py:68 main.py:80
+#: main.py:67 main.py:80
 msgid ""
 "Hello, <b><a href='tg://user?id={user_id}'>{name}</a></b>!\n"
 "I will help you to log editing and deleting messages done by another "
@@ -40,7 +40,7 @@ msgstr ""
 "<a href='https://github.com/SyperAlexKomp/tg-message-logger-bot'>Source "
 "code</a>"
 
-#: handlers/deleting.py:39
+#: handlers/deleting.py:36
 msgid ""
 "<b>🗑 Deletion noticed!</b>\n"
 "\n"
@@ -52,7 +52,7 @@ msgstr ""
 "Повідомлення від <b><a href='{user_link}'>{name}</a></b>:<blockquote "
 "expandable>{msg}</blockquote>"
 
-#: handlers/deleting.py:75 handlers/deleting.py:133
+#: handlers/deleting.py:72 handlers/deleting.py:130
 msgid ""
 "<b>🗑 Deletion noticed!</b>\n"
 "\n"
@@ -62,13 +62,13 @@ msgstr ""
 "\n"
 "Повідомлення від <b><a href='{user_link}'>{name}</a></b>:"
 
-#: handlers/deleting.py:102
+#: handlers/deleting.py:99
 msgid "<b>Voice message can't be sent because of your privacy settings!</b>"
 msgstr ""
 "<b>Голосове повідомлення не може бути надіслано через ваші налаштування "
 "конфіденційності!</b>"
 
-#: handlers/edit.py:54 handlers/edit.py:90
+#: handlers/edit.py:53 handlers/edit.py:89
 msgid ""
 "<b>✏ Editing noticed!</b>\n"
 "\n"
@@ -82,7 +82,7 @@ msgstr ""
 "<blockquote expandable>{old_msg}</blockquote>\n"
 "Нове повідомлення:<blockquote expandable>{new_msg}</blockquote>"
 
-#: handlers/edit.py:141
+#: handlers/edit.py:140
 msgid ""
 "<b>📍 Location change detected!</b>\n"
 "\n"
@@ -98,3 +98,13 @@ msgstr ""
 "\n"
 "P.S. Бот не зберігає інформацію про місцезнаходження і бачить її тільки в "
 "момент оновлення. Тому дізнатися, що саме змінилося, неможливо"
+
+#: handlers/receive.py:32
+msgid ""
+"An error has occurred! Please add the bot to your profile again!\n"
+"\n"
+"<i>via</i> @{bot_username}"
+msgstr ""
+"Виникла помилка! Будь ласка, додайте бота до свого профілю ще раз!\n"
+"\n"
+"<i>via</i> @{bot_username}"

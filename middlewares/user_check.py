@@ -1,9 +1,11 @@
+
 from typing import Callable, Dict, Any, Awaitable
 
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject, User
+from aiogram.types import TelegramObject, User, Message
 
 from repo import Repo
+from repo.modules.users import UserData
 from utils.encryptor import get_text_hash
 
 
@@ -18,12 +20,11 @@ class UsersMiddleware(BaseMiddleware):
 
         user_data = repo.users.get(user.id)
 
-        if user is None or user_data is None or data.get('business_connection_id') is None:
+        if user_data is None or data.get('business_connection_id') is None:
             return await handler(event, data)
 
         connection_id = get_text_hash(data['business_connection_id'])
         if user_data.connection_id != connection_id:
-            print("e")
             user_data.connection_id = connection_id
             repo.save()
 
