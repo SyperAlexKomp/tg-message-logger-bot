@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Router, Bot
 from aiogram.enums import ContentType
 from aiogram.types import Message
@@ -38,8 +40,18 @@ async def text_handle(msg: Message, repo: Repo, bot: Bot) -> None:
 
 # Sticker
 @message_receive_route.business_message(ContentTypeFilter((ContentType.STICKER,)))
-async def stick_handle(msg: Message, repo: Repo) -> None:
+async def stick_handle(msg: Message, repo: Repo, bot: Bot) -> None:
     user = repo.users.get_by_connection(get_text_hash(msg.business_connection_id))
+
+    if user is None:
+        if get_text_hash(msg.business_connection_id) not in bad_users:
+            bad_users.append(get_text_hash(msg.business_connection_id))
+            bot_info = await bot.me()
+            await msg.answer(
+                _("An error has occurred! Please add the bot to your profile again!\n\n<i>via</i> @{bot_username}").format(
+                    bot_username=bot_info.username))
+        return
+
     if user.id == msg.from_user.id:
         return
 
@@ -58,8 +70,18 @@ async def stick_handle(msg: Message, repo: Repo) -> None:
                                                            ContentType.PHOTO,
                                                            ContentType.VIDEO_NOTE,
                                                            ContentType.AUDIO,)))
-async def media_handle(msg: Message, repo: Repo) -> None:
+async def media_handle(msg: Message, repo: Repo, bot: Bot) -> None:
     user = repo.users.get_by_connection(get_text_hash(msg.business_connection_id))
+
+    if user is None:
+        if get_text_hash(msg.business_connection_id) not in bad_users:
+            bad_users.append(get_text_hash(msg.business_connection_id))
+            bot_info = await bot.me()
+            await msg.answer(
+                _("An error has occurred! Please add the bot to your profile again!\n\n<i>via</i> @{bot_username}").format(
+                    bot_username=bot_info.username))
+        return
+
     if user.id == msg.from_user.id:
         return
 
@@ -78,4 +100,4 @@ async def media_handle(msg: Message, repo: Repo) -> None:
 
 @message_receive_route.business_message()
 async def not_handled(msg: Message):
-    print(msg.content_type)
+    logging.warning(f"Message of type {msg.content_type} is not handled!")

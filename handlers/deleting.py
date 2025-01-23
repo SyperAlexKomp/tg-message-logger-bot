@@ -1,3 +1,6 @@
+import asyncio
+import logging
+
 from aiogram import Router, Bot
 from aiogram.enums import ContentType
 from aiogram.exceptions import TelegramBadRequest
@@ -41,6 +44,8 @@ async def text_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> Non
                                               msg=TextEncryptor(key=bdm.business_connection_id).decrypt(message.message))
 
         await bot.send_message(chat_id=user.id, text=text)
+
+        await asyncio.sleep(0.4)  # To avoid limit
 
 
 # Media (Photo, Video, Voice, Animation, Audio)
@@ -104,6 +109,8 @@ async def media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> No
         else:
             return
 
+        await asyncio.sleep(0.4) # To avoid limit
+
 
 # No caption media (Stickers, Video note)
 @message_delete_route.deleted_business_messages(ContentTypeFilter((ContentType.STICKER, ContentType.VIDEO_NOTE)))
@@ -145,7 +152,9 @@ async def nocap_media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo)
         else:
             return
 
+        await asyncio.sleep(0.4)  # To avoid limit
+
 
 @message_delete_route.edited_business_message()
 async def not_handled(msg: BusinessMessagesDeleted):
-    print("Bruh")
+    logging.warning("Some deleting update is not handled!")
