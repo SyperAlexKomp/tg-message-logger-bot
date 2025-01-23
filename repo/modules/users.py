@@ -12,7 +12,7 @@ class UserData(Base):
     id = Column(BigInteger, primary_key=True)
     connection_id = Column(String(1028), unique=True)
     channel_id = Column(BigInteger)
-    language = Column(String(4))
+    language = Column(String(4), default="en")
 
 
 class UsersRepo(BaseRepo):
