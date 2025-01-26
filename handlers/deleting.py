@@ -15,7 +15,7 @@ message_delete_route = Router()
 
 
 # Text
-@message_delete_route.deleted_business_messages(ContentTypeFilter((ContentType.TEXT, )))
+@message_delete_route.deleted_business_messages(ContentTypeFilter(ContentType.TEXT, ))
 async def text_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> None:
     user = repo.users.get_by_connection(get_text_hash(bdm.business_connection_id))
 
@@ -41,7 +41,8 @@ async def text_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> Non
                  "<blockquote expandable>{msg}</blockquote>",
                  locale=user.language).format(user_link=user_link,
                                               name=bdm.chat.full_name,
-                                              msg=TextEncryptor(key=bdm.business_connection_id).decrypt(message.message))
+                                              msg=TextEncryptor(key=bdm.business_connection_id).decrypt(
+                                                  message.message))
 
         await bot.send_message(chat_id=user.id, text=text)
 
@@ -49,11 +50,12 @@ async def text_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> Non
 
 
 # Media (Photo, Video, Voice, Animation, Audio)
-@message_delete_route.deleted_business_messages(ContentTypeFilter((ContentType.PHOTO,
-                                                                   ContentType.VIDEO,
-                                                                   ContentType.VOICE,
-                                                                   ContentType.ANIMATION,
-                                                                   ContentType.AUDIO)))
+@message_delete_route.deleted_business_messages(ContentTypeFilter(ContentType.PHOTO,
+                                                                  ContentType.VIDEO,
+                                                                  ContentType.VOICE,
+                                                                  ContentType.ANIMATION,
+                                                                  ContentType.AUDIO,
+                                                                  ContentType.DOCUMENT, ))
 async def media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> None:
     user = repo.users.get_by_connection(get_text_hash(bdm.business_connection_id))
 
@@ -79,9 +81,11 @@ async def media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> No
                  locale=user.language).format(user_link=user_link,
                                               name=bdm.chat.full_name)
 
-        if message.message is None: pass
+        if message.message is None:
+            pass
         else:
-            text += "<blockquote expandable>{msg}</blockquote>".format(msg=TextEncryptor(key=bdm.business_connection_id).decrypt(message.message))
+            text += "<blockquote expandable>{msg}</blockquote>".format(
+                msg=TextEncryptor(key=bdm.business_connection_id).decrypt(message.message))
 
         if message.media_type == ContentType.PHOTO:
             await bot.send_photo(chat_id=user.id,
@@ -98,7 +102,7 @@ async def media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> No
                                      caption=text)
             except TelegramBadRequest:
                 t = await bot.send_message(chat_id=user.id,
-                                       text=text)
+                                           text=text)
                 await bot.send_message(reply_to_message_id=t.message_id,
                                        chat_id=user.id,
                                        text=_("<b>Voice message can't be sent because of your privacy settings!</b>"))
@@ -106,14 +110,18 @@ async def media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> No
             await bot.send_animation(chat_id=user.id,
                                      animation=TextEncryptor(key=bdm.business_connection_id).decrypt(message.media),
                                      caption=text)
+        elif message.media_type == ContentType.DOCUMENT:
+            await bot.send_document(chat_id=user.id,
+                                    document=TextEncryptor(key=bdm.business_connection_id).decrypt(message.media),
+                                    caption=text)
         else:
             return
 
-        await asyncio.sleep(0.4) # To avoid limit
+        await asyncio.sleep(0.4)  # To avoid limit
 
 
 # No caption media (Stickers, Video note)
-@message_delete_route.deleted_business_messages(ContentTypeFilter((ContentType.STICKER, ContentType.VIDEO_NOTE)))
+@message_delete_route.deleted_business_messages(ContentTypeFilter(ContentType.STICKER, ContentType.VIDEO_NOTE))
 async def nocap_media_delete(bdm: BusinessMessagesDeleted, bot: Bot, repo: Repo) -> None:
     user = repo.users.get_by_connection(get_text_hash(bdm.business_connection_id))
 

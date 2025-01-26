@@ -9,8 +9,8 @@ from utils.encryptor import get_text_hash
 
 
 class ContentTypeFilter(Filter):
-    def __init__(self, type: tuple) -> None:
-        self.type = type
+    def __init__(self, *args) -> None:
+        self.type = args
 
     async def __call__(self, message: Message, repo: Repo) -> bool:
         if isinstance(message, BusinessMessagesDeleted):

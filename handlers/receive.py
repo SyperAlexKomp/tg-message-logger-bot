@@ -15,7 +15,7 @@ bad_users = []  # Used to prevent spam if user is not found in db
 
 
 # Text
-@message_receive_route.business_message(ContentTypeFilter((ContentType.TEXT,)))
+@message_receive_route.business_message(ContentTypeFilter(ContentType.TEXT,))
 async def text_handle(msg: Message, repo: Repo, bot: Bot) -> None:
     user = repo.users.get_by_connection(get_text_hash(msg.business_connection_id))
 
@@ -39,7 +39,7 @@ async def text_handle(msg: Message, repo: Repo, bot: Bot) -> None:
 
 
 # Sticker
-@message_receive_route.business_message(ContentTypeFilter((ContentType.STICKER,)))
+@message_receive_route.business_message(ContentTypeFilter(ContentType.STICKER, ))
 async def stick_handle(msg: Message, repo: Repo, bot: Bot) -> None:
     user = repo.users.get_by_connection(get_text_hash(msg.business_connection_id))
 
@@ -64,12 +64,17 @@ async def stick_handle(msg: Message, repo: Repo, bot: Bot) -> None:
 
 
 # Media (Video, Animation, Voice, Photo, Audio)
-@message_receive_route.business_message(ContentTypeFilter((ContentType.VIDEO,
-                                                           ContentType.VOICE,
-                                                           ContentType.ANIMATION,
-                                                           ContentType.PHOTO,
-                                                           ContentType.VIDEO_NOTE,
-                                                           ContentType.AUDIO,)))
+@message_receive_route.business_message(
+    ContentTypeFilter(
+        ContentType.VIDEO,
+        ContentType.VOICE,
+        ContentType.ANIMATION,
+        ContentType.PHOTO,
+        ContentType.VIDEO_NOTE,
+        ContentType.AUDIO,
+        ContentType.DOCUMENT,
+    )
+)
 async def media_handle(msg: Message, repo: Repo, bot: Bot) -> None:
     user = repo.users.get_by_connection(get_text_hash(msg.business_connection_id))
 

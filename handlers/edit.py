@@ -36,7 +36,7 @@ async def get_data(repo: Repo, business_connection_id,
 
 
 # Text edit handler
-@message_edit_route.edited_business_message(ContentTypeFilter((ContentType.TEXT, )))
+@message_edit_route.edited_business_message(ContentTypeFilter(ContentType.TEXT, ))
 async def text_edit(bm: Message, bot: Bot, repo: Repo) -> None:
     data = await get_data(repo, bm.business_connection_id, bm.from_user.id, bm.message_id)
     if data is None: return
@@ -68,11 +68,12 @@ async def text_edit(bm: Message, bot: Bot, repo: Repo) -> None:
 
 
 # Video, Photo, Animation, Voice, Audio caption edit handler
-@message_edit_route.edited_business_message(ContentTypeFilter((ContentType.PHOTO,
+@message_edit_route.edited_business_message(ContentTypeFilter(ContentType.PHOTO,
                                                                ContentType.VIDEO,
                                                                ContentType.ANIMATION,
                                                                ContentType.VOICE,
-                                                               ContentType.AUDIO)))
+                                                               ContentType.AUDIO,
+                                                               ContentType.DOCUMENT))
 async def media_edit(bm: Message, bot: Bot, repo: Repo) -> None:
     data = await get_data(repo, bm.business_connection_id, bm.from_user.id, bm.message_id)
     if data is None: return
@@ -127,7 +128,7 @@ async def media_edit(bm: Message, bot: Bot, repo: Repo) -> None:
 
 
 # Location change handler
-@message_edit_route.edited_business_message(ContentTypeFilter((ContentType.LOCATION, )))
+@message_edit_route.edited_business_message(ContentTypeFilter(ContentType.LOCATION, ))
 async def location_edit(bm: Message, bot: Bot, repo: Repo) -> None:
     user = repo.users.get_by_connection(connection_id=get_text_hash(bm.business_connection_id))
 
