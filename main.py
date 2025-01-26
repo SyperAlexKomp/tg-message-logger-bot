@@ -75,7 +75,7 @@ async def connection_handler(bc: BusinessConnection, bot: Bot) -> None:
                              photo="https://omeba-work.com/screenshoot/fc36db79d525fb040fbad9c8039c8dca.jpg")
 
 
-@dp.message(ContentTypeFilter((ContentType.TEXT,)))
+@dp.message(ContentTypeFilter(ContentType.TEXT,))
 async def get_chat_id(msg: Message, bot: Bot) -> None:
     text = _("Hello, <b><a href='tg://user?id={user_id}'>{name}</a></b>!"
              "\nI will help you to log editing and deleting messages done by another users!"
